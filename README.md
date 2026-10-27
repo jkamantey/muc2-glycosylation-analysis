@@ -1,231 +1,193 @@
-# MUC2 Long PTS — Biophysical & Ligand Interaction Analysis
+# MUC2 Glycosylation Analysis
+
+<div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
-[![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)]()
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Jupyter](https://img.shields.io/badge/Jupyter-Notebooks-F37626?logo=jupyter&logoColor=white)](https://jupyter.org/)
+[![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)](https://github.com/jkamantey/muc2-glycosylation-analysis)
+[![AMBER](https://img.shields.io/badge/Force%20Field-AMBER-green.svg)]()
 
-Open-source computational pipeline for analysing the **MUC2 mucin long PTS (Pro-Thr-Ser) domain** — covering its intrinsic biophysical and polymer properties, and how those properties change upon **O-glycosylation** and **ligand interactions**.
+**Open-source MD analysis pipeline for the MUC2 mucin long PTS domain**
+
+*How O-glycosylation reshapes backbone mechanics, polymer properties, and ligand interaction capacity*
+
+</div>
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Systems](#systems)
+- [Analysis Pipeline](#analysis-pipeline)
+- [Notebooks](#notebooks)
+- [Key Findings](#key-findings)
+- [Installation](#installation)
+- [Data](#data)
+- [Citation](#citation)
+- [License](#license)
+- [Author](#author)
 
 ---
 
 ## Overview
 
-MUC2 is the primary gel-forming mucin of the intestinal mucus layer. Its long PTS domain is a tandem-repeat intrinsically disordered region (IDR) densely decorated with O-linked glycans. Understanding how glycosylation reshapes the backbone mechanics of MUC2 — and how those structural changes affect how the chain interacts with ligands (e.g. bile salts, lectins, pathogens) — is central to understanding mucus barrier function.
+**MUC2** is the dominant gel-forming glycoprotein of the intestinal mucus layer. Its **long PTS (Pro-Thr-Ser) domain** — a tandem-repeat intrinsically disordered region carrying up to 30 O-linked glycan chains — is responsible for the mucus gel's unique mechanical properties: rigidity, hydration, and selective permeability.
 
-This repository provides a complete, reproducible analysis workflow structured in two stages:
+This repository provides a complete, reproducible computational pipeline that answers two connected questions:
 
-### Stage 1 — Biophysical characterisation of MUC2
-Establish the intrinsic structural and dynamical properties of the MUC2 PTS backbone across three glycosylation states. This includes chain dimensions, local flexibility, curvature, backbone dihedral distributions, correlated motions, and the free energy landscape.
+> **1.** What are the intrinsic biophysical and polymer properties of the MUC2 PTS backbone?
+>
+> **2.** How do O-glycosylation and ligand interactions progressively reshape those properties?
 
-### Stage 2 — How polymer properties change with glycosylation and ligand interaction
-Quantify how O-glycosylation progressively reshapes those properties — stiffening the chain, redistributing local bends, altering correlated motions — and sets the stage for probing how the glycosylated chain interacts with ligands differently from the naked backbone.
+The pipeline moves from local backbone geometry (per-residue bending, dihedral angles) through global chain mechanics (persistence length, radius of gyration) to correlated dynamics and free energy landscapes — building a full structural picture of how glycosylation transforms a flexible disordered peptide into a stiff, rod-like mucin fibre.
 
 ---
 
 ## Systems
 
-| Label | Description | Colour code |
-|-------|-------------|-------------|
-| Non-glycosylated | Naked PTS backbone — no O-glycans | `#A23B72` |
-| Mid-level Glycosylated | Partial O-glycosylation | `#2E86AB` |
-| Ext. Glycosylated | Full / dense O-glycosylation | `#F18F01` |
+Three glycosylation states are compared across **~10,800 ns** of all-atom MD simulation:
 
-Each system: **3 independent MD runs × 1200 ns = 3600 ns total**, 2381 frames per system at 1.2 ns/frame. Simulations performed with the AMBER force field in explicit solvent.
+| System | Description | Colour | Simulation |
+|--------|-------------|--------|------------|
+| **Non-glycosylated** | Naked PTS backbone, no O-glycans | ![#A23B72](https://placehold.co/12x12/A23B72/A23B72.png) `#A23B72` | 3 × 1200 ns |
+| **Mid-level Glycosylated** | Partial O-glycosylation | ![#2E86AB](https://placehold.co/12x12/2E86AB/2E86AB.png) `#2E86AB` | 3 × 1200 ns |
+| **Ext. Glycosylated** | Full / dense O-glycosylation | ![#F18F01](https://placehold.co/12x12/F18F01/F18F01.png) `#F18F01` | 3 × 1200 ns |
+
+> 2381 frames per system · 1.2 ns/frame · AMBER force field · explicit solvent (TIP3P)
 
 ---
 
-## Repository Structure
+## Analysis Pipeline
 
 ```
-.
-├── README.md
-│
-├── ── Stage 1: Biophysical Properties ──────────────────────────────
-│
-├── radius_of_curvature.ipynb        # Cα virtual bond-angle curvature analysis
-├── rmsf_comparison.ipynb            # Per-residue flexibility (RMSF)
-├── plot_physical_vars.ipynb         # PCA coloured by Rg, ETE, curvature, Lp, FES
-├── persistence_length.ipynb         # Worm-like chain persistence length
-├── secondary_structure.ipynb        # DSSP secondary structure across systems
-├── dihedral_distribution.ipynb      # Backbone φ/ψ dihedral distributions
-├── phi_psi_bend_analysis.ipynb      # Ramachandran + bend redistribution + twist
-│
-├── ── Stage 2: Dynamics, Correlations & Interactions ───────────────
-│
-├── dccm_glyc_noglyc.ipynb           # Dynamic cross-correlation matrices (DCCM)
-├── dccm_comparison.ipynb            # DCCM comparison across all three systems
-├── dccm_crossnorm.ipynb             # Cross-normalised DCCM
-├── hbond_analysis.ipynb             # Hydrogen bond analysis (chain + solvent)
-├── pmf_ref_formula.ipynb            # Potential of mean force — reference formula
-├── pmf_corrected_formula.ipynb      # PMF — corrected formula
-│
-├── ── PCA & Conformational Sampling ────────────────────────────────
-│
-├── muc2_newsystem.ipynb             # Main PCA (glyc + non-glyc combined)
-├── muc2_noglycans.ipynb             # PCA — non-glycosylated system
-├── pca_dccm_noglyc_domains.ipynb    # PCA + DCCM per domain (non-glyc)
-├── pca_dccm_normal_domains.ipynb    # PCA + DCCM per domain (glyc)
-├── pca_last400_comparison.ipynb     # PCA of last 400 ns — convergence check
-│
-└── ── Analysis Scripts ─────────────────────────────────────────────
-    ├── radius_of_curvature/radius_of_curvature.py
-    ├── curvature_xglyc/curvature_xglyc.py
-    ├── persistence_length/persistence_length_windows.py
-    ├── persistence_length_xglyc/persistence_windows_xglyc.py
-    ├── free_energy_surface/fes_3sys.py
-    ├── hbond_analysis/analysis_hbonds_3sys.py
-    └── run_physical_vars.sh
+┌─────────────────────────────────────────────────────────────────┐
+│                     STAGE 1 — Biophysical                       │
+│                  Characterise the MUC2 backbone                 │
+├──────────────────┬──────────────────┬───────────────────────────┤
+│  Local geometry  │  Global polymer  │  Conformational sampling  │
+│                  │   mechanics      │                           │
+│  · Cα curvature  │  · Rg, ETE       │  · PCA (PC1, PC2)         │
+│  · Pre-glycan    │  · Persistence   │  · Free energy surface    │
+│    bending       │    length        │  · Dihedral distributions │
+│  · φ/ψ angles   │  · RMSF          │  · Secondary structure    │
+│  · Twist profile │                  │                           │
+└──────────────────┴──────────────────┴───────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────────┐
+│               STAGE 2 — Dynamics & Interactions                 │
+│         How glycosylation reshapes properties & binding         │
+├──────────────────┬──────────────────┬───────────────────────────┤
+│  Correlated      │  Interaction     │  Thermodynamics           │
+│  motions         │  network         │                           │
+│                  │                  │                           │
+│  · DCCM          │  · H-bond        │  · PMF / FES              │
+│  · Cross-norm    │    occupancy     │  · Conformational         │
+│    DCCM          │  · Ligand        │    barriers               │
+│                  │    accessibility │                           │
+└──────────────────┴──────────────────┴───────────────────────────┘
 ```
 
 ---
 
-## Stage 1 — Biophysical Properties
+## Notebooks
 
-### Radius of Curvature & Pre-Glycan Bending
-**Notebook:** `radius_of_curvature.ipynb`
+### Stage 1 — Biophysical Properties
 
-The core structural analysis. Computes the **Cα interior virtual bond angle** at every internal residue — a direct measure of local backbone bending:
+| Notebook | Description |
+|----------|-------------|
+| [`radius_of_curvature.ipynb`](radius_of_curvature.ipynb) | Cα interior virtual bond-angle curvature · per-residue bending profiles · pre-glycan structural hotspot analysis · bimodal distribution characterisation |
+| [`rmsf_comparison.ipynb`](rmsf_comparison.ipynb) | Per-residue RMSF across all three systems · identifies stiffened and mobilised regions |
+| [`plot_physical_vars.ipynb`](plot_physical_vars.ipynb) | PCA coloured by Rg · ETE · curvature · persistence length · free energy surface · Pearson correlations with PC axes |
+| [`persistence_length.ipynb`](persistence_length.ipynb) | Worm-like chain (WLC) fit · sliding-window Lp · stiffness comparison across glycosylation states |
+| [`phi_psi_bend_analysis.ipynb`](phi_psi_bend_analysis.ipynb) | Ramachandran scatter from mean structures · bend redistribution profiles · Cα dihedral twist analysis |
+| [`dihedral_distribution.ipynb`](dihedral_distribution.ipynb) | Backbone φ/ψ dihedral distributions · conformational basin populations |
+| [`secondary_structure.ipynb`](secondary_structure.ipynb) | DSSP secondary structure per residue per frame · PPII / coil content vs glycosylation |
 
-```
-For three consecutive Cα atoms A → B → C:
-  deflection    = arccos( t_AB · t_BC )      [0° = straight, 180° = folded back]
-  interior angle θ = 180° − deflection        [180° = straight, ~0° = sharp kink]
+### Stage 2 — Dynamics, Correlations & Interactions
 
-  kappa_rms(site)  = sqrt( mean_frames( θ² ) )   per-residue bending profile
-  kappa_rms(frame) = sqrt( mean_sites( θ² ) )     per-frame scalar
-```
-
-**Key findings:**
-- 25 / 30 pre-glycan positions already form a local bending peak in the **non-glycosylated** chain — the amino acid sequence encodes structural hotspots at glycan attachment sites before any glycan is added
-- The 5 non-rising sites are all **Glycine (GLY)**, the only amino acid with no side chain, acting as a conformational hinge — each falling at position 6 of the 6-residue tandem repeat unit
-- Glycosylation rescues Glycine-site kinks; extensive glycosylation produces the largest backbone extension (up to **+15.6°** at a single site)
-- Bimodal angle distributions emerge with glycosylation, indicating **conformational switching** between two distinct backbone states rather than a simple global stiffening
-- A subset of sites shows **bend redistribution**: some positions become more extended while others become more kinked, confirming that glycosylation reorganises rather than uniformly stiffens the chain
-
----
-
-### RMSF — Per-Residue Flexibility
-**Notebook:** `rmsf_comparison.ipynb`
-
-Root-mean-square fluctuation (RMSF) of each Cα position, comparing all three glycosylation states. Identifies which regions of the PTS domain are dynamically stiffened or mobilised by O-glycan attachment and highlights sequence-position dependence of the glycan effect on local dynamics.
-
----
-
-### PCA Coloured by Physical Variables
-**Notebook:** `plot_physical_vars.ipynb`
-
-Projects all MD conformations onto principal components (PC1, PC2) and colours each frame by:
-
-| Variable | Physical meaning |
-|----------|-----------------|
-| Radius of gyration (Rg) | Overall chain compactness |
-| End-to-end distance (ETE) | Global chain extension |
-| RMS curvature (κ) | Mean local bending |
-| Persistence length (Lp) | Chain stiffness |
-| Free energy (FES) | Conformational stability |
-
-Pearson correlations quantify which variables drive each PC axis. PC1 is strongly correlated with Rg and ETE — it encodes the extension/compaction axis. PC2 captures internal redistribution of bending without changing overall dimensions.
-
----
-
-### Persistence Length — Chain Stiffness
-**Notebook:** `persistence_length.ipynb`
-
-Fits the worm-like chain (WLC) tangent correlation decay:
-```
-⟨t(0) · t(s)⟩ = exp(−s / Lp)
-```
-Lp computed in sliding windows along the chain. Increasing glycosylation increases Lp, confirming the bottlebrush stiffening mechanism. Comparison across systems quantifies how much each level of glycosylation contributes to chain rigidity.
-
----
-
-### Secondary Structure
-**Notebook:** `secondary_structure.ipynb`
-
-DSSP-based secondary structure classification per residue per frame. MUC2 PTS is predominantly unstructured (coil/PPII) — this analysis tracks whether glycosylation shifts the secondary structure content, particularly at proline-rich repeat positions.
-
----
-
-### Backbone Dihedral Distribution
-**Notebook:** `dihedral_distribution.ipynb`
-
-φ/ψ backbone dihedral distributions across the full trajectory. Identifies the dominant conformational basins and how glycosylation shifts the population between extended (PPII/β) and other states.
-
----
-
-### Phi-Psi & Bend Redistribution Analysis
-**Notebook:** `phi_psi_bend_analysis.ipynb`
-
-Five-part analysis combining backbone angles and curvature data:
-
-| Part | Analysis | Output |
-|------|----------|--------|
-| A | Ramachandran scatter from mean PDB structures | φ/ψ per residue, all systems |
-| B | Per-residue Cα bend profile with ±SE | Bend profile comparison |
-| C | Total summed bend — tests global vs redistributed stiffening | Bar chart |
-| D | Δbend(glyc − noglyc) along sequence — redistribution map | Signed bar profile |
-| E | Virtual Cα dihedral (twist) profile and Δtwist | Twist comparison |
-
----
-
-## Stage 2 — Dynamics, Correlations & Ligand Interactions
-
-### Hydrogen Bond Analysis
-**Notebook:** `hbond_analysis.ipynb`
-
-Intra-chain and chain–solvent hydrogen bond occupancy as a function of glycosylation. Identifies backbone NH/CO pairs that gain or lose H-bonds when glycans are attached. This provides a direct molecular-level view of how glycosylation rewires the local interaction network — relevant to how accessible backbone donors/acceptors are for ligand binding.
-
----
-
-### Dynamic Cross-Correlation Matrices (DCCM)
-**Notebooks:** `dccm_glyc_noglyc.ipynb`, `dccm_comparison.ipynb`, `dccm_crossnorm.ipynb`
-
-Normalised covariance of Cα displacement fluctuations:
-```
-Cij = ⟨ΔRi · ΔRj⟩ / sqrt( ⟨ΔRi²⟩ ⟨ΔRj²⟩ )
-```
-Values range from −1 (perfectly anti-correlated) to +1 (perfectly correlated). Cross-normalised DCCM removes system-specific fluctuation magnitude, isolating changes in correlated motion patterns caused by glycosylation. Long-range correlated motions have direct implications for allosteric ligand effects — a ligand binding at one site can propagate its effect along the chain through these correlations.
-
----
-
-### Free Energy Surface & PMF
-**Notebooks:** `pmf_ref_formula.ipynb`, `pmf_corrected_formula.ipynb`
-
-Potential of mean force along PC1/PC2:
-```
-F(x) = −kT ln P(x),   shifted so min(F) = 0
-```
-Identifies the most thermodynamically stable conformations and the barriers between them. For ligand interaction studies, low free energy states represent the most likely conformations a ligand will encounter — making this a prerequisite for understanding binding geometry.
-
----
+| Notebook | Description |
+|----------|-------------|
+| [`dccm_glyc_noglyc.ipynb`](dccm_glyc_noglyc.ipynb) | Dynamic cross-correlation matrix (DCCM) · glyc vs non-glyc |
+| [`dccm_comparison.ipynb`](dccm_comparison.ipynb) | DCCM comparison across all three glycosylation states |
+| [`dccm_crossnorm.ipynb`](dccm_crossnorm.ipynb) | Cross-normalised DCCM · isolates changes in correlation pattern independent of fluctuation magnitude |
+| [`hbond_analysis.ipynb`](hbond_analysis.ipynb) | Intra-chain and chain–solvent H-bond occupancy · backbone donor/acceptor accessibility for ligand binding |
+| [`pmf_ref_formula.ipynb`](pmf_ref_formula.ipynb) | Potential of mean force (PMF) along PC1/PC2 · reference formula |
+| [`pmf_corrected_formula.ipynb`](pmf_corrected_formula.ipynb) | PMF · corrected formula · conformational stability comparison |
 
 ### PCA & Conformational Sampling
-**Notebooks:** `muc2_newsystem.ipynb`, `muc2_noglycans.ipynb`, `pca_dccm_noglyc_domains.ipynb`, `pca_dccm_normal_domains.ipynb`, `pca_last400_comparison.ipynb`
 
-Principal component analysis of combined trajectories. The shared PCA space allows direct comparison of which conformations are sampled by each glycosylation state, and whether the systems converge to the same free energy minima.
+| Notebook | Description |
+|----------|-------------|
+| [`muc2_newsystem.ipynb`](muc2_newsystem.ipynb) | Combined PCA · glycosylated + non-glycosylated · shared conformational space |
+| [`muc2_noglycans.ipynb`](muc2_noglycans.ipynb) | PCA · non-glycosylated system only |
+| [`pca_dccm_noglyc_domains.ipynb`](pca_dccm_noglyc_domains.ipynb) | PCA + DCCM by domain · non-glycosylated |
+| [`pca_dccm_normal_domains.ipynb`](pca_dccm_normal_domains.ipynb) | PCA + DCCM by domain · glycosylated |
+| [`pca_last400_comparison.ipynb`](pca_last400_comparison.ipynb) | PCA of last 400 ns per run · convergence check |
 
 ---
 
-## Key Results Summary
+## Key Findings
 
-| Property | Non-glyc | Mid-glyc | Ext. glyc |
-|----------|----------|----------|-----------|
-| Mean Cα bend (°) | ~116–120 | ~119–124 | ~122–128 |
-| Gly-site Δ angle (°) | baseline | up to +10 | up to +16 |
-| Angle distribution | unimodal, narrow | bimodal, broader | bimodal, broad |
-| Bend pattern | uniform | partial redistribution | strong redistribution |
+<details>
+<summary><b>1. The sequence pre-encodes structural hotspots at glycan sites</b></summary>
+
+25 out of 30 pre-glycan positions already form a local bending peak in the **non-glycosylated** chain — before any glycan is attached. The backbone geometry is shaped by the amino acid sequence to anticipate glycosylation. The 5 non-rising sites are all **Glycine**, falling at exactly position 6 of every 6-residue tandem repeat unit.
+
+</details>
+
+<details>
+<summary><b>2. Glycine acts as the periodic conformational hinge</b></summary>
+
+Glycine is the only amino acid with no side chain, giving it exceptional conformational freedom. It cannot hold the backbone in the extended geometry that Thr, Ile, Val, and Pro enforce — instead it dips into a more kinked state. This makes it the structurally weakest point in each repeat unit, and the site of the **largest glycan-driven conformational rescue** (up to +15.6° at a single Gly site under full glycosylation).
+
+</details>
+
+<details>
+<summary><b>3. Glycosylation redistributes bending rather than uniformly stiffening</b></summary>
+
+The total summed bending across the chain is similar between systems, but its spatial distribution changes: some residues become more extended while others become more kinked. This redistribution — not simple global stiffening — is the dominant mechanical effect of glycosylation.
+
+</details>
+
+<details>
+<summary><b>4. Bimodal angle distributions signal conformational switching</b></summary>
+
+Rather than shifting all pre-glycan residues to a new single preferred angle, glycosylation splits the population into two distinct peaks. The backbone switches between two energy minima — a behaviour that at the macroscopic scale underpins the viscoelastic (simultaneously solid-like and liquid-like) mechanics of mucus gels.
+
+</details>
+
+<details>
+<summary><b>5. Long-range correlated motions increase with glycosylation</b></summary>
+
+DCCM analysis shows that glycosylation introduces longer-range dynamic correlations along the chain. This has direct consequences for ligand interactions: a ligand binding at one region can propagate its structural effect further along the chain in the glycosylated system than in the naked backbone.
+
+</details>
+
+---
+
+## Key Results Table
+
+| Property | Non-glycosylated | Mid-glycosylated | Ext. glycosylated |
+|----------|:---:|:---:|:---:|
+| Mean Cα bend angle (°) | ~116–120 | ~119–124 | ~122–128 |
+| Gly-site Δ angle from non-glyc (°) | — | up to +10 | up to **+16** |
+| Pre-glycan angle distribution | unimodal · narrow | bimodal · broader | bimodal · broad |
+| Bend redistribution | baseline | partial | strong |
 | Chain stiffness (Lp) | lowest | intermediate | highest |
+| Long-range DCCM correlations | weakest | intermediate | strongest |
 
 ---
 
-## Installation & Dependencies
+## Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/jkamantey/muc2-pts-md-analysis.git
-cd muc2-pts-md-analysis
+git clone https://github.com/jkamantey/muc2-glycosylation-analysis.git
+cd muc2-glycosylation-analysis
 
-# Create environment (Anaconda recommended)
+# Create a conda environment
 conda create -n muc2_analysis python=3.10
 conda activate muc2_analysis
 
@@ -233,23 +195,41 @@ conda activate muc2_analysis
 pip install numpy scipy matplotlib pandas jupyter mdanalysis
 ```
 
-Run any notebook with:
+### Running a notebook interactively
+
+```bash
+jupyter notebook
+```
+
+### Running a notebook non-interactively
+
 ```bash
 jupyter nbconvert --to notebook --execute \
   --ExecutePreprocessor.kernel_name=anaconda-base \
-  --inplace <notebook>.ipynb
+  --ExecutePreprocessor.timeout=600 \
+  --inplace <notebook_name>.ipynb
 ```
 
-Or open interactively:
-```bash
-jupyter notebook
+### Setting your data path
+
+Each notebook has a `BASE` variable near the top pointing to the local data directory. Update it to match your system before running:
+
+```python
+BASE = '/path/to/your/data/'
 ```
 
 ---
 
 ## Data
 
-Trajectory data (`.xtc`, `.dat`, `.prmtop`) are not included in this repository due to file size. The notebooks are structured to load data from relative paths — update the `BASE` path variable at the top of each notebook to point to your local data directory.
+Trajectory files (`.xtc`), topology files (`.prmtop`), and raw data arrays (`.dat`, `.csv`) are **not included** in this repository due to file size. The notebooks load data via relative paths from the `BASE` variable.
+
+To reproduce the analysis, you will need:
+- AMBER topology (`.prmtop`) for each system
+- Aligned trajectory files (`.xtc`) for each of the three independent runs
+- Pre-computed curvature, PCA, and physical variable data files
+
+Contact the author if you are interested in accessing the simulation data.
 
 ---
 
@@ -257,17 +237,23 @@ Trajectory data (`.xtc`, `.dat`, `.prmtop`) are not included in this repository 
 
 If you use this code or analysis pipeline in your work, please cite:
 
-```
-Mantey, J. (2026). MUC2 Long PTS MD Analysis Pipeline.
-GitHub: https://github.com/jkamantey/muc2-pts-md-analysis
-Northeastern University.
+```bibtex
+@software{mantey2026muc2,
+  author    = {Mantey, Joshua},
+  title     = {MUC2 Glycosylation Analysis: MD Simulation Pipeline},
+  year      = {2026},
+  publisher = {GitHub},
+  url       = {https://github.com/jkamantey/muc2-glycosylation-analysis},
+  institution = {Northeastern University}
+}
 ```
 
 ---
 
 ## License
 
-This project is licensed under the **MIT License** — free to use, modify, and distribute with attribution. See [LICENSE](LICENSE) for details.
+This project is licensed under the **MIT License** — free to use, modify, and distribute with attribution.
+See [LICENSE](LICENSE) for full details.
 
 ---
 
@@ -277,4 +263,4 @@ This project is licensed under the **MIT License** — free to use, modify, and 
 Northeastern University
 [mantey.j@northeastern.edu](mailto:mantey.j@northeastern.edu)
 
-Computational biophysics — MUC2 mucin glycobiology, intrinsically disordered proteins, molecular dynamics simulation analysis.
+*Computational biophysics · MUC2 mucin glycobiology · Intrinsically disordered proteins · Molecular dynamics*
