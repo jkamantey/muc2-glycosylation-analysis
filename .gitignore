@@ -1,0 +1,89 @@
+# Trajectory and simulation binary files
+*.xtc
+*.trr
+*.dcd
+*.nc
+*.ncdf
+*.crd
+*.rst
+*.rst7
+*.mdcrd
+*.traj
+
+# Topology / parameter files
+*.prmtop
+*.top
+*.psf
+*.pdb
+
+# Large data files
+*.dat
+*.dat.gz
+*.csv
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.gz
+*.bz2
+
+# Output directories (plots saved locally, not tracked)
+plots/
+phi_psi_bend_plots/
+pca_physical_vars/
+pmf_plots/
+pmf_plots_corrected/
+pmf_plots_ref/
+plots_crossnorm_dca/
+plots_domains_noglyc/
+plots_domains_normal/
+plots_longpts_pca/
+plots_muc2_noglycans/
+rmsf/
+secondrystructure_allframes/
+pmf_data/
+
+# Raw analysis sub-directories (contain large data)
+radius_of_curvature/
+curvature_xglyc/
+dihedral_angles_15structures_mean_structure/
+dihedral_distribution/
+mean_3_sytems_glycans_included/
+muc2_extensiveglycans/
+pca_combined/
+pca_glyc_noglyc/
+pca_last400_comparison/
+longpts_pca/
+persistence_length/
+persistence_length_xglyc/
+physical_variables/
+se_longpts_fes/
+free_energy_surface/
+hbond_analysis/
+dccm_glyc_noglyc/
+crossnorm_dca/
+pdb_structures/
+pca_dccm_d1-d2_d4-ctck/
+muc2_noglyc_pca_dccm/
+muc2_normal_pca_dccm/
+plots_pca/
+pca_plots/
+
+# Analysis sub-directories
+analysis_ambernew_system/
+analysis_ambernew_system2/
+analysis_ambernew_system3/
+analysis_muc2_noglycans/
+analysis_muc2_noglycans1/
+analysis_muc2_noglycans3/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
